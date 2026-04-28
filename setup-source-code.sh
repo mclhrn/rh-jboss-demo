@@ -189,14 +189,23 @@ print_success "Copied additional skeleton files"
 # Step 4: Create catalog-info.yaml for kitchensink
 print_info "Creating catalog-info.yaml for kitchensink application..."
 
-cat > "$KITCHENSINK_DIR/catalog-info.yaml" <<'EOF'
+# Auto-detect GitHub username from argocd config
+GITHUB_USER=$(grep "repoURL:" "$SCRIPT_DIR/argocd/app-of-apps.yaml" | head -1 | sed 's|.*github.com/||' | sed 's|/.*||')
+if [ -z "$GITHUB_USER" ] || [ "$GITHUB_USER" = "CHANGEME" ]; then
+    print_warning "Could not auto-detect GitHub username, using placeholder"
+    GITHUB_USER="YOUR_ORG"
+else
+    print_success "Auto-detected GitHub username: $GITHUB_USER"
+fi
+
+cat > "$KITCHENSINK_DIR/catalog-info.yaml" <<EOF
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
   name: kitchensink
   description: JBoss EAP Kitchensink demo application
   annotations:
-    github.com/project-slug: YOUR_ORG/rh-jboss-demo
+    github.com/project-slug: ${GITHUB_USER}/rh-jboss-demo
     argocd/app-name: kitchensink
   tags:
     - java
@@ -239,7 +248,7 @@ spec:
               description: Member registered
 EOF
 
-print_success "Created catalog-info.yaml"
+print_success "Created catalog-info.yaml with GitHub user: $GITHUB_USER"
 
 # Step 5: Clean up
 print_info "Cleaning up temporary files..."

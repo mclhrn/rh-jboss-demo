@@ -4,7 +4,7 @@ metadata:
   name: kitchensink
   description: JBoss EAP Kitchensink demo application
   annotations:
-    github.com/project-slug: YOUR_ORG/rh-jboss-demo
+    github.com/project-slug: mclhrn/rh-jboss-demo
     argocd/app-name: kitchensink
   tags:
     - java

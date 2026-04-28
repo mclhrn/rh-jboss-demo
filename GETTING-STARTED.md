@@ -35,9 +35,11 @@ Run the setup script to download the official JBoss quickstart:
 - Copies source code to `components/kitchensink/src/`
 - Copies `pom.xml` for Maven builds
 - Creates Developer Hub template skeleton
-- Sets up `catalog-info.yaml`
+- Sets up `catalog-info.yaml` (automatically uses your GitHub username)
 
 **Time**: ~30 seconds
+
+**Note**: The script auto-detects your GitHub username from `argocd/app-of-apps.yaml`
 
 ### 3. Update Repository URLs
 
