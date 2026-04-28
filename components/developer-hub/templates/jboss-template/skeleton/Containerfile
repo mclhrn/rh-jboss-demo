@@ -1,0 +1,21 @@
+# Use official Red Hat JBoss EAP image
+{%- if values.eap_version == "7.4" %}
+FROM registry.redhat.io/jboss-eap-7/eap74-openjdk11-openshift-rhel8:latest
+{%- elif values.eap_version == "8.0" %}
+FROM registry.redhat.io/jboss-eap-8/eap8-openjdk17-openshift-rhel8:latest
+{%- endif %}
+
+# Copy the WAR file to the deployments directory
+# JBoss EAP automatically deploys WARs found in /deployments
+COPY --chown=jboss:jboss target/${{ values.component_id }}.war /deployments/ROOT.war
+
+# Expose HTTP port
+EXPOSE 8080
+
+# Expose management port for health checks
+EXPOSE 9990
+
+# Run as jboss user (non-root)
+USER jboss
+
+# JBoss EAP will start automatically via the base image's CMD

@@ -1,0 +1,119 @@
+schemaVersion: 2.2.0
+metadata:
+  name: ${{ values.component_id }}
+  displayName: ${{ values.component_id | capitalize }}
+  description: ${{ values.description }}
+  tags: ["Java", "JBoss", "EAP", "Maven"]
+  projectType: "jboss-eap"
+  language: "Java"
+  version: 1.0.0
+
+components:
+  # Development tools container
+  - name: tools
+    container:
+      image: quay.io/devfile/universal-developer-image:latest
+      memoryLimit: 3Gi
+      cpuLimit: 2000m
+      mountSources: true
+      endpoints:
+        - name: ide
+          targetPort: 3100
+          exposure: public
+          protocol: https
+      env:
+        - name: MAVEN_OPTS
+          value: "-Xmx1g"
+      volumeMounts:
+        - name: m2
+          path: /home/user/.m2
+
+  # JBoss EAP runtime container
+  - name: eap
+    container:
+      {%- if values.eap_version == "7.4" %}
+      image: registry.redhat.io/jboss-eap-7/eap74-openjdk11-openshift-rhel8:latest
+      {%- elif values.eap_version == "8.0" %}
+      image: registry.redhat.io/jboss-eap-8/eap8-openjdk17-openshift-rhel8:latest
+      {%- endif %}
+      memoryLimit: 2Gi
+      cpuLimit: 1000m
+      mountSources: true
+      endpoints:
+        - name: jboss
+          targetPort: 8080
+          exposure: public
+          protocol: http
+        - name: debug
+          targetPort: 5005
+          exposure: internal
+      env:
+        - name: MAVEN_OPTS
+          value: "-Xmx1g"
+        - name: JAVA_OPTS_APPEND
+          value: "-Djboss.bind.address=0.0.0.0"
+      volumeMounts:
+        - name: m2
+          path: /home/jboss/.m2
+
+  # Persistent Maven cache
+  - name: m2
+    volume:
+      size: 3Gi
+
+commands:
+  # Build the application
+  - id: build
+    exec:
+      component: tools
+      commandLine: mvn clean package -DskipTests
+      workingDir: ${PROJECT_SOURCE}
+      group:
+        kind: build
+        isDefault: true
+
+  # Run with hot-reload (recommended for development)
+  - id: run-hot-reload
+    exec:
+      component: tools
+      commandLine: |
+        mvn wildfly:run \
+          -Dwildfly.hostname=0.0.0.0 \
+          -Dwildfly.port=8080 \
+          -Dwildfly.dev
+      workingDir: ${PROJECT_SOURCE}
+      group:
+        kind: run
+        isDefault: true
+
+  # Run in debug mode
+  - id: debug
+    exec:
+      component: tools
+      commandLine: |
+        mvn wildfly:run \
+          -Dwildfly.hostname=0.0.0.0 \
+          -Dwildfly.port=8080 \
+          -Dwildfly.dev \
+          -Dwildfly.javaOpts="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
+      workingDir: ${PROJECT_SOURCE}
+      group:
+        kind: debug
+
+  # Run tests
+  - id: test
+    exec:
+      component: tools
+      commandLine: mvn test
+      workingDir: ${PROJECT_SOURCE}
+      group:
+        kind: test
+
+starterProjects:
+  - name: ${{ values.component_id }}
+    description: ${{ values.description }}
+    git:
+      remotes:
+        origin: https://github.com/${{ values.destination.owner }}/${{ values.destination.repo }}
+      checkoutFrom:
+        revision: main

@@ -1,0 +1,119 @@
+schemaVersion: 2.2.0
+metadata:
+  name: jboss-eap-kitchensink
+  displayName: JBoss EAP Kitchensink
+  description: JBoss EAP development environment with hot-reload
+  tags: ["Java", "JBoss", "EAP", "Maven", "Jakarta EE"]
+  projectType: "jboss-eap"
+  language: "Java"
+  version: 1.0.0
+
+components:
+  # Development tools container
+  - name: tools
+    container:
+      image: quay.io/devfile/universal-developer-image:latest
+      memoryLimit: 3Gi
+      cpuLimit: 2000m
+      mountSources: true
+      endpoints:
+        - name: ide
+          targetPort: 3100
+          exposure: public
+          protocol: https
+      env:
+        - name: MAVEN_OPTS
+          value: "-Xmx1g"
+      volumeMounts:
+        - name: m2
+          path: /home/user/.m2
+
+  # JBoss EAP runtime container
+  - name: eap
+    container:
+      image: registry.redhat.io/jboss-eap-7/eap74-openjdk11-openshift-rhel8:latest
+      memoryLimit: 2Gi
+      cpuLimit: 1000m
+      mountSources: true
+      sourceMapping: /projects
+      endpoints:
+        - name: jboss
+          targetPort: 8080
+          exposure: public
+          protocol: http
+        - name: debug
+          targetPort: 5005
+          exposure: internal
+      env:
+        - name: MAVEN_OPTS
+          value: "-Xmx1g"
+        - name: JAVA_OPTS_APPEND
+          value: "-Djboss.bind.address=0.0.0.0"
+      volumeMounts:
+        - name: m2
+          path: /home/jboss/.m2
+
+  # Persistent Maven cache
+  - name: m2
+    volume:
+      size: 3Gi
+
+commands:
+  # Build the application
+  - id: build
+    exec:
+      component: tools
+      commandLine: mvn clean package -DskipTests -f ${PROJECT_SOURCE}/components/kitchensink/pom.xml
+      workingDir: ${PROJECT_SOURCE}/components/kitchensink
+      group:
+        kind: build
+        isDefault: true
+
+  # Run with hot-reload (recommended for development)
+  - id: run-hot-reload
+    exec:
+      component: tools
+      commandLine: |
+        cd ${PROJECT_SOURCE}/components/kitchensink && \
+        mvn wildfly:run \
+          -Dwildfly.hostname=0.0.0.0 \
+          -Dwildfly.port=8080 \
+          -Dwildfly.dev
+      workingDir: ${PROJECT_SOURCE}/components/kitchensink
+      group:
+        kind: run
+        isDefault: true
+
+  # Run in debug mode
+  - id: debug
+    exec:
+      component: tools
+      commandLine: |
+        cd ${PROJECT_SOURCE}/components/kitchensink && \
+        mvn wildfly:run \
+          -Dwildfly.hostname=0.0.0.0 \
+          -Dwildfly.port=8080 \
+          -Dwildfly.dev \
+          -Dwildfly.javaOpts="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
+      workingDir: ${PROJECT_SOURCE}/components/kitchensink
+      group:
+        kind: debug
+
+  # Run tests
+  - id: test
+    exec:
+      component: tools
+      commandLine: mvn test -f ${PROJECT_SOURCE}/components/kitchensink/pom.xml
+      workingDir: ${PROJECT_SOURCE}/components/kitchensink
+      group:
+        kind: test
+
+starterProjects:
+  - name: kitchensink
+    description: JBoss EAP Kitchensink starter
+    git:
+      remotes:
+        origin: https://github.com/mclhrn/rh-jboss-demo.git
+      checkoutFrom:
+        revision: main
+    subDir: components/kitchensink

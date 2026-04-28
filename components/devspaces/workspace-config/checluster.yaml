@@ -1,0 +1,42 @@
+apiVersion: org.eclipse.che/v2
+kind: CheCluster
+metadata:
+  name: devspaces
+  namespace: openshift-devspaces
+spec:
+  components:
+    cheServer:
+      debug: false
+      logLevel: INFO
+    metrics:
+      enable: true
+    pluginRegistry:
+      openVSXURL: https://open-vsx.org
+    devfileRegistry:
+      externalDevfileRegistries:
+        - url: https://registry.devfile.io
+  containerRegistry: {}
+  devEnvironments:
+    startTimeoutSeconds: 600
+    secondsOfRunBeforeIdling: -1
+    maxNumberOfWorkspacesPerUser: 5
+    maxNumberOfRunningWorkspacesPerUser: 3
+    containerBuildConfiguration:
+      openShiftSecurityContextConstraint: container-build
+    defaultEditor: che-incubator/che-code/latest
+    defaultNamespace:
+      autoProvision: true
+      template: <username>-devspaces
+    defaultComponents:
+      - name: universal-developer-image
+        container:
+          image: quay.io/devfile/universal-developer-image:latest
+    storage:
+      pvcStrategy: per-workspace
+      perWorkspacePVCSize: 10Gi
+  networking:
+    auth:
+      gateway:
+        configLabels:
+          app: che
+          component: che-gateway-config

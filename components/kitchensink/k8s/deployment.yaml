@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kitchensink
+  namespace: kitchensink-dev
+  labels:
+    app: kitchensink
+    app.kubernetes.io/name: kitchensink
+    app.kubernetes.io/component: application
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kitchensink
+  template:
+    metadata:
+      labels:
+        app: kitchensink
+        version: v1
+    spec:
+      containers:
+        - name: kitchensink
+          image: quay.io/mclhrn/kitchensink:latest
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+            - name: admin
+              containerPort: 9990
+              protocol: TCP
+          env:
+            - name: JAVA_OPTS_APPEND
+              value: "-Djboss.bind.address=0.0.0.0 -Djboss.bind.address.management=0.0.0.0"
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 9990
+              scheme: HTTP
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 9990
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3

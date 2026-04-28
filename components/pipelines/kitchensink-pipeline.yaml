@@ -1,0 +1,100 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: kitchensink-pipeline
+  namespace: kitchensink-dev
+spec:
+  params:
+    - name: git-url
+      type: string
+      description: Git repository URL
+      default: https://github.com/mclhrn/rh-jboss-demo
+    - name: git-revision
+      type: string
+      description: Git revision to build
+      default: main
+    - name: image-name
+      type: string
+      description: Container image name
+      default: quay.io/mclhrn/kitchensink
+    - name: path-context
+      type: string
+      description: Path to build context
+      default: components/kitchensink
+
+  workspaces:
+    - name: shared-workspace
+      description: Workspace for source code and build artifacts
+    - name: maven-settings
+      description: Maven local repository cache
+
+  tasks:
+    - name: git-clone
+      taskRef:
+        name: git-clone
+        kind: ClusterTask
+      params:
+        - name: url
+          value: $(params.git-url)
+        - name: revision
+          value: $(params.git-revision)
+        - name: deleteExisting
+          value: "true"
+      workspaces:
+        - name: output
+          workspace: shared-workspace
+
+    - name: maven-build
+      taskRef:
+        name: maven
+        kind: ClusterTask
+      runAfter:
+        - git-clone
+      params:
+        - name: GOALS
+          value:
+            - clean
+            - package
+            - -DskipTests
+            - -Dmaven.repo.local=$(workspaces.maven-settings.path)/.m2
+        - name: CONTEXT_DIR
+          value: $(params.path-context)
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+        - name: maven-settings
+          workspace: maven-settings
+
+    - name: build-image
+      taskRef:
+        name: buildah
+        kind: ClusterTask
+      runAfter:
+        - maven-build
+      params:
+        - name: IMAGE
+          value: $(params.image-name):$(params.git-revision)
+        - name: DOCKERFILE
+          value: $(params.path-context)/Containerfile
+        - name: CONTEXT
+          value: $(params.path-context)
+        - name: TLSVERIFY
+          value: "true"
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+
+    - name: push-image
+      taskRef:
+        name: buildah
+        kind: ClusterTask
+      runAfter:
+        - build-image
+      params:
+        - name: IMAGE
+          value: $(params.image-name):$(params.git-revision)
+        - name: TLSVERIFY
+          value: "true"
+      workspaces:
+        - name: source
+          workspace: shared-workspace

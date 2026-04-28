@@ -1,0 +1,15 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: kitchensink
+  namespace: kitchensink-dev
+  labels:
+    app: kitchensink
+spec:
+  to:
+    kind: Service
+    name: kitchensink
+    weight: 100
+  port:
+    targetPort: http
+  wildcardPolicy: None

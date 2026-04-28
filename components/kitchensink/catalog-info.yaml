@@ -1,0 +1,47 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: kitchensink
+  description: JBoss EAP Kitchensink demo application
+  annotations:
+    github.com/project-slug: YOUR_ORG/rh-jboss-demo
+    argocd/app-name: kitchensink
+  tags:
+    - java
+    - jboss-eap
+    - demo
+spec:
+  type: service
+  lifecycle: production
+  owner: platform-team
+  system: demo-system
+  providesApis:
+    - kitchensink-api
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: kitchensink-api
+  description: REST API for member management
+spec:
+  type: openapi
+  lifecycle: production
+  owner: platform-team
+  system: demo-system
+  definition: |
+    openapi: 3.0.0
+    info:
+      title: Kitchensink API
+      version: 1.0.0
+    paths:
+      /rest/members:
+        get:
+          summary: List all members
+          responses:
+            '200':
+              description: List of members
+        post:
+          summary: Register a new member
+          responses:
+            '200':
+              description: Member registered

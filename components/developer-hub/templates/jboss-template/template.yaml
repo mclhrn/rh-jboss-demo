@@ -1,0 +1,140 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: jboss-eap-quickstart
+  title: JBoss EAP Application
+  description: Create a new JBoss EAP application with CI/CD pipeline and DevSpaces workspace
+  tags:
+    - java
+    - jboss
+    - eap
+    - recommended
+spec:
+  owner: platform-team
+  type: service
+
+  parameters:
+    - title: Application Details
+      required:
+        - component_id
+        - owner
+      properties:
+        component_id:
+          title: Name
+          type: string
+          description: Unique name for this application (lowercase, hyphens only)
+          pattern: '^[a-z0-9-]+$'
+          ui:autofocus: true
+        description:
+          title: Description
+          type: string
+          description: What does this application do?
+        owner:
+          title: Owner
+          type: string
+          description: Team or person owning this application
+          ui:field: OwnerPicker
+          ui:options:
+            catalogFilter:
+              kind: [Group, User]
+
+    - title: Repository Configuration
+      required:
+        - repoUrl
+      properties:
+        repoUrl:
+          title: Repository Location
+          type: string
+          ui:field: RepoUrlPicker
+          ui:options:
+            allowedHosts:
+              - github.com
+            allowedOwners:
+              - your-org  # Update with your GitHub org
+
+    - title: Deployment Configuration
+      required:
+        - registry_org
+        - image_registry
+      properties:
+        image_registry:
+          title: Image Registry
+          type: string
+          description: Container image registry
+          default: quay.io
+          enum:
+            - quay.io
+            - docker.io
+        registry_org:
+          title: Registry Organization
+          type: string
+          description: Your organization name in the registry
+        eap_version:
+          title: JBoss EAP Version
+          type: string
+          description: JBoss EAP version to use
+          default: '7.4'
+          enum:
+            - '7.4'
+            - '8.0'
+        namespace:
+          title: Target Namespace
+          type: string
+          description: OpenShift namespace for deployment
+          default: ${{ parameters.component_id }}-dev
+
+  steps:
+    - id: fetch-base
+      name: Fetch Base Template
+      action: fetch:template
+      input:
+        url: ./skeleton
+        copyWithoutTemplating:
+          - .github/workflows/*.yaml
+        values:
+          component_id: ${{ parameters.component_id }}
+          description: ${{ parameters.description }}
+          owner: ${{ parameters.owner }}
+          registry_org: ${{ parameters.registry_org }}
+          image_registry: ${{ parameters.image_registry }}
+          eap_version: ${{ parameters.eap_version }}
+          namespace: ${{ parameters.namespace }}
+          destination: ${{ parameters.repoUrl | parseRepoUrl }}
+
+    - id: publish
+      name: Publish to GitHub
+      action: publish:github
+      input:
+        allowedHosts: ['github.com']
+        description: ${{ parameters.description }}
+        repoUrl: ${{ parameters.repoUrl }}
+        defaultBranch: main
+        repoVisibility: public
+
+    - id: register
+      name: Register Component in Catalog
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
+        catalogInfoPath: '/catalog-info.yaml'
+
+    - id: create-argocd-app
+      name: Create ArgoCD Application
+      action: argocd:create-application
+      input:
+        appName: ${{ parameters.component_id }}
+        argoInstance: openshift-gitops
+        projectName: default
+        repoUrl: ${{ steps.publish.output.remoteUrl }}
+        path: k8s
+        namespace: ${{ parameters.namespace }}
+
+  output:
+    links:
+      - title: Repository
+        url: ${{ steps.publish.output.remoteUrl }}
+      - title: Open in catalog
+        icon: catalog
+        entityRef: ${{ steps.register.output.entityRef }}
+      - title: View in ArgoCD
+        url: https://argocd.example.com/applications/${{ parameters.component_id }}

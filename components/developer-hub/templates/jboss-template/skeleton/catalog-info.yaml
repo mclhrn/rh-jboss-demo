@@ -1,0 +1,50 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: ${{ values.component_id }}
+  description: ${{ values.description }}
+  annotations:
+    github.com/project-slug: ${{ values.destination.owner + "/" + values.destination.repo }}
+    argocd/app-name: ${{ values.component_id }}
+    backstage.io/techdocs-ref: dir:.
+  tags:
+    - java
+    - jboss-eap
+    - ${{ values.eap_version }}
+  links:
+    - url: https://github.com/${{ values.destination.owner }}/${{ values.destination.repo }}
+      title: Source Code
+      icon: github
+    - url: https://argocd.example.com/applications/${{ values.component_id }}
+      title: ArgoCD Application
+      icon: dashboard
+spec:
+  type: service
+  lifecycle: experimental
+  owner: ${{ values.owner }}
+  system: demo-system
+  providesApis:
+    - ${{ values.component_id }}-api
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: ${{ values.component_id }}-api
+  description: REST API for ${{ values.component_id }}
+spec:
+  type: openapi
+  lifecycle: experimental
+  owner: ${{ values.owner }}
+  system: demo-system
+  definition: |
+    openapi: 3.0.0
+    info:
+      title: ${{ values.component_id | capitalize }} API
+      version: 1.0.0
+    paths:
+      /rest/members:
+        get:
+          summary: List all members
+          responses:
+            '200':
+              description: Successful response
