@@ -3,7 +3,7 @@ metadata:
   name: jboss-eap-kitchensink
   displayName: JBoss EAP Kitchensink
   description: JBoss EAP development environment with hot-reload
-  tags: ["Java", "JBoss", "EAP", "Maven", "Jakarta EE"]
+  tags: ["Java", "JBoss", "EAP", "Maven"]
   projectType: "jboss-eap"
   language: "Java"
   version: 1.0.0

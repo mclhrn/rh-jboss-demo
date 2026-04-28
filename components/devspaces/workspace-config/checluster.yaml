@@ -31,6 +31,8 @@ spec:
       - name: universal-developer-image
         container:
           image: quay.io/devfile/universal-developer-image:latest
+          memoryLimit: 3Gi
+          cpuLimit: 2000m
     storage:
       pvcStrategy: per-workspace
       perWorkspacePVCSize: 10Gi
