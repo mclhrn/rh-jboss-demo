@@ -76,7 +76,7 @@ spec:
         - name: maven_settings
           workspace: maven_settings
 
-    - name: build-image
+    - name: build-and-push-image
       taskRef:
         resolver: cluster
         params:
@@ -95,29 +95,6 @@ spec:
           value: $(params.path-context)/Containerfile
         - name: CONTEXT
           value: $(params.path-context)
-        - name: TLS_VERIFY
-          value: "true"
-        - name: SKIP_PUSH
-          value: "true"
-      workspaces:
-        - name: source
-          workspace: shared-workspace
-
-    - name: push-image
-      taskRef:
-        resolver: cluster
-        params:
-          - name: kind
-            value: task
-          - name: name
-            value: buildah
-          - name: namespace
-            value: openshift-pipelines
-      runAfter:
-        - build-image
-      params:
-        - name: IMAGE
-          value: $(params.image-name):$(params.git-revision)
         - name: TLS_VERIFY
           value: "true"
       workspaces:
