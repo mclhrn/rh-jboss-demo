@@ -9,9 +9,10 @@ spec:
       mountPath: /opt/app-root/src
       configMaps:
         - name: app-config
-    extraEnvs:
-      secrets:
-        - name: github-credentials
+    # GitHub credentials can be added later:
+    # extraEnvs:
+    #   secrets:
+    #     - name: github-credentials
     replicas: 1
     route:
       enabled: true
