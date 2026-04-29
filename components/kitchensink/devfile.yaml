@@ -107,13 +107,3 @@ commands:
       workingDir: ${PROJECT_SOURCE}/components/kitchensink
       group:
         kind: test
-
-starterProjects:
-  - name: kitchensink
-    description: JBoss EAP Kitchensink starter
-    git:
-      remotes:
-        origin: https://github.com/mclhrn/rh-jboss-demo.git
-      checkoutFrom:
-        revision: main
-    subDir: components/kitchensink
