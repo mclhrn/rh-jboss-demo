@@ -1,9 +1,9 @@
-# Use official Red Hat JBoss EAP 7.4 image
-FROM registry.redhat.io/jboss-eap-7/eap74-openjdk11-openshift-rhel8:latest
+# Use public WildFly image (compatible with JBoss EAP)
+FROM quay.io/wildfly/wildfly:27.0.1.Final-jdk11
 
 # Copy the WAR file to the deployments directory
-# JBoss EAP automatically deploys WARs found in /deployments
-COPY --chown=jboss:jboss target/kitchensink.war /deployments/ROOT.war
+# WildFly automatically deploys WARs found in /opt/jboss/wildfly/standalone/deployments
+COPY --chown=jboss:root target/kitchensink.war /opt/jboss/wildfly/standalone/deployments/ROOT.war
 
 # Expose HTTP port
 EXPOSE 8080
@@ -14,4 +14,4 @@ EXPOSE 9990
 # Run as jboss user (non-root)
 USER jboss
 
-# JBoss EAP will start automatically via the base image's CMD
+# WildFly will start automatically via the base image's CMD
