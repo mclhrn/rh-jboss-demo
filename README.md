@@ -83,32 +83,69 @@ Local Development Option:
 
 ### Prerequisites
 
-- OpenShift 4.12+ cluster with cluster-admin access
-- `oc` CLI installed and logged in
+#### Cluster Requirements
+
+**Minimum cluster specifications:**
+- **OpenShift version**: 4.12 or later
+- **Access level**: cluster-admin permissions
+- **Nodes**: 2+ worker nodes recommended (or 1 node with ≥8 CPUs, ≥16Gi memory)
+- **CPU**: 8+ cores total across all worker nodes
+- **Memory**: 16Gi+ total across all worker nodes
+- **Storage**: 100Gi+ available persistent storage
+
+**Resource breakdown:**
+- OpenShift GitOps (ArgoCD): ~2 CPUs, ~2.5Gi memory
+- OpenShift DevSpaces: ~2 CPUs, ~4Gi memory
+- OpenShift Pipelines (Tekton): ~500m CPU, ~1Gi memory
+- Red Hat Developer Hub: ~1 CPU, ~2Gi memory
+- Kitchensink demo app: ~512m CPU, ~1Gi memory
+- OpenShift system overhead: ~2-3 CPUs, ~5Gi memory
+
+**Note**: Demo.redhat.com sandbox clusters (single-node, 4 CPUs) are **too small** for this full demo. Use OpenShift Local (CRC) with resource optimizations or request a multi-node cluster.
+
+**OpenShift Local (CRC) Option**: If you don't have access to a production cluster, you can use OpenShift Local with the included resource optimization scripts. See `scripts/CRC-SETUP.md` for complete setup instructions.
+
+#### Local Tools
+
+- `oc` CLI installed and logged in to your cluster
+- `git` installed locally
 - Git repository hosting (GitHub, GitLab, etc.) for forking this repo
+- Quay.io account (free tier) for container image registry
 
 ### Installation
 
-1. **Fork this repository** to your Git provider (required for GitOps to work)
+1. **Verify cluster resources** (important!):
+   ```bash
+   # Login to your cluster
+   oc login https://api.your-cluster.com:6443
+   
+   # Check cluster capacity
+   oc get nodes
+   oc describe node | grep -A 5 "Allocatable:"
+   
+   # Ensure you have at least 8 CPUs and 16Gi memory available
+   ```
 
-2. **Update the repository URL** in `argocd/app-of-apps.yaml`:
+2. **Fork this repository** to your Git provider (required for GitOps to work)
+
+3. **Update the repository URL** in `argocd/app-of-apps.yaml`:
    ```bash
    # Replace YOUR_GIT_REPO_URL with your forked repository
    sed -i 's|https://github.com/CHANGEME/rh-jboss-demo|YOUR_GIT_REPO_URL|g' argocd/app-of-apps.yaml
    ```
 
-3. **Run the bootstrap installer**:
+4. **Run the bootstrap installer**:
    ```bash
    cd bootstrap
    ./install.sh
    ```
 
-4. **Wait for installation** (5-10 minutes):
+5. **Wait for installation** (8-15 minutes):
    - The script will install OpenShift GitOps operator
    - ArgoCD will then install all other components
    - Monitor progress: `./install.sh --status`
 
-5. **Access the demo**:
+6. **Access the demo**:
    ```bash
    # Get all URLs
    ./install.sh --urls
@@ -228,6 +265,27 @@ Add your own software templates in `components/developer-hub/templates/`
 - See `components/developer-hub/README.md`
 
 ## Troubleshooting
+
+### Insufficient Cluster Resources
+
+**Symptoms**: ArgoCD pods stuck in `Pending` state with "Insufficient cpu" or "Insufficient memory" errors.
+
+```bash
+# Check cluster resource allocation
+oc describe node | grep -A 5 "Allocated resources"
+
+# Check pending pods
+oc get pods -n openshift-gitops
+```
+
+**Solutions**:
+- **Option 1**: Use a larger cluster (8+ CPUs, 16Gi+ memory)
+- **Option 2**: Use OpenShift Local (CRC) with optimizations: `./scripts/optimize-for-crc.sh`
+- **Option 3**: Reduce the ArgoCD resource requests (advanced):
+  ```bash
+  oc patch argocd openshift-gitops -n openshift-gitops \
+    --type=merge --patch-file bootstrap/argocd-resource-patch.yaml
+  ```
 
 ### Installation Issues
 
