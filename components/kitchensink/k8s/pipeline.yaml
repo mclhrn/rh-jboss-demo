@@ -97,6 +97,8 @@ spec:
           value: $(params.path-context)
         - name: TLS_VERIFY
           value: "true"
+        - name: SKIP_PUSH
+          value: "true"
       workspaces:
         - name: source
           workspace: shared-workspace
