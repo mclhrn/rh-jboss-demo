@@ -16,7 +16,7 @@ spec:
     - name: image-name
       type: string
       description: Container image name
-      default: quay.io/mclhrn/kitchensink
+      default: quay.io/mhearne/kitchensink
     - name: path-context
       type: string
       description: Path to build context

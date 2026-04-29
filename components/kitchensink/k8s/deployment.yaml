@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: kitchensink
-          image: quay.io/mclhrn/kitchensink:latest
+          image: quay.io/mhearne/kitchensink:latest
           imagePullPolicy: Always
           ports:
             - name: http
