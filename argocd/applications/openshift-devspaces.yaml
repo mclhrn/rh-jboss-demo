@@ -11,7 +11,7 @@ spec:
   source:
     repoURL: https://github.com/mclhrn/rh-jboss-demo
     targetRevision: main
-    path: components/devspaces
+    path: components/devspaces/workspace-config
 
   destination:
     server: https://kubernetes.default.svc
