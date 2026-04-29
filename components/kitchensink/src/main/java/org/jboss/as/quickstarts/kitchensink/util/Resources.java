@@ -18,10 +18,8 @@ package org.jboss.as.quickstarts.kitchensink.util;
 
 import java.util.logging.Logger;
 
-import jakarta.enterprise.context.RequestScoped;
 import jakarta.enterprise.inject.Produces;
 import jakarta.enterprise.inject.spi.InjectionPoint;
-import jakarta.faces.context.FacesContext;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
@@ -47,10 +45,7 @@ public class Resources {
         return Logger.getLogger(injectionPoint.getMember().getDeclaringClass().getName());
     }
 
-    @Produces
-    @RequestScoped
-    public FacesContext produceFacesContext() {
-        return FacesContext.getCurrentInstance();
-    }
+    // FacesContext is automatically available as a CDI bean in Jakarta Faces 4.0+
+    // No need for a custom producer
 
 }
