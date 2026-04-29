@@ -28,16 +28,16 @@ components:
         - name: m2
           path: /home/user/.m2
 
-  # JBoss EAP runtime container
-  - name: eap
+  # WildFly runtime container (for reference/testing)
+  - name: wildfly
     container:
-      image: registry.redhat.io/jboss-eap-7/eap74-openjdk11-openshift-rhel8:latest
+      image: quay.io/wildfly/wildfly:27.0.1.Final-jdk11
       memoryLimit: 2Gi
       cpuLimit: 1000m
       mountSources: true
       sourceMapping: /projects
       endpoints:
-        - name: jboss
+        - name: wildfly
           targetPort: 8080
           exposure: public
           protocol: http
