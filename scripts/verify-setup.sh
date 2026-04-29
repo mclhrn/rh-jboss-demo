@@ -12,7 +12,7 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ERRORS=0
 
 echo -e "${BLUE}========================================${NC}"
@@ -26,7 +26,7 @@ if [ -d "$SCRIPT_DIR/components/kitchensink/src" ]; then
     echo -e "${GREEN}✓ Kitchensink source code present${NC}"
 else
     echo -e "${RED}✗ Kitchensink source code missing${NC}"
-    echo -e "  Run: ./setup-source-code.sh"
+    echo -e "  Run: ./scripts/setup-source-code.sh"
     ERRORS=$((ERRORS + 1))
 fi
 
@@ -34,7 +34,7 @@ if [ -f "$SCRIPT_DIR/components/kitchensink/pom.xml" ]; then
     echo -e "${GREEN}✓ pom.xml present${NC}"
 else
     echo -e "${RED}✗ pom.xml missing${NC}"
-    echo -e "  Run: ./setup-source-code.sh"
+    echo -e "  Run: ./scripts/setup-source-code.sh"
     ERRORS=$((ERRORS + 1))
 fi
 
@@ -105,12 +105,12 @@ if [ -f "$SCRIPT_DIR/components/kitchensink/catalog-info.yaml" ]; then
         echo -e "${GREEN}✓ catalog-info.yaml configured: $PROJECT_SLUG${NC}"
     else
         echo -e "${RED}✗ catalog-info.yaml has placeholder${NC}"
-        echo -e "  Run: ./setup-source-code.sh"
+        echo -e "  Run: ./scripts/setup-source-code.sh"
         ERRORS=$((ERRORS + 1))
     fi
 else
     echo -e "${RED}✗ catalog-info.yaml missing${NC}"
-    echo -e "  Run: ./setup-source-code.sh"
+    echo -e "  Run: ./scripts/setup-source-code.sh"
     ERRORS=$((ERRORS + 1))
 fi
 

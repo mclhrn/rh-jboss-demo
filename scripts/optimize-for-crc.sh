@@ -12,7 +12,7 @@ GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 echo -e "${BLUE}Optimizing demo for OpenShift Local (CRC)...${NC}"
 echo ""
@@ -172,7 +172,7 @@ echo "  • Devfile: Reduced to 2Gi tools, 1.5Gi EAP runtime"
 echo ""
 echo "Next steps:"
 echo "  1. Ensure CRC is configured with at least 6 CPUs and 16GB RAM"
-echo "  2. Run: ./setup-source-code.sh (if not already done)"
+echo "  2. Run: ./scripts/setup-source-code.sh (if not already done)"
 echo "  3. Commit changes: git add -A && git commit -m 'Optimize for CRC'"
 echo "  4. Push to your fork: git push"
 echo "  5. Install: cd bootstrap && ./install.sh"

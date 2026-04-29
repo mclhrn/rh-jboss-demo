@@ -12,7 +12,7 @@ GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 echo -e "${BLUE}Restoring production defaults...${NC}"
 echo ""
@@ -402,4 +402,4 @@ echo "  1. Commit changes: git add -A && git commit -m 'Restore production defau
 echo "  2. Push to your fork: git push"
 echo "  3. Install on production cluster: cd bootstrap && ./install.sh"
 echo ""
-echo "To switch back to CRC settings, run: ./optimize-for-crc.sh"
+echo "To switch back to CRC settings, run: ./scripts/optimize-for-crc.sh"

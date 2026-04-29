@@ -12,7 +12,7 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 echo -e "${BLUE}========================================${NC}"
 echo -e "${BLUE}Current Configuration${NC}"
@@ -67,17 +67,17 @@ if [ "$CONFIG" = "CRC" ]; then
     echo -e "${YELLOW}Optimized for OpenShift Local (CRC)${NC}"
     echo ""
     echo "To switch to production:"
-    echo "  ./restore-production-defaults.sh"
+    echo "  ./scripts/restore-production-defaults.sh"
 elif [ "$CONFIG" = "PRODUCTION" ]; then
     echo -e "${GREEN}Configured for Production OpenShift${NC}"
     echo ""
     echo "To optimize for CRC:"
-    echo "  ./optimize-for-crc.sh"
+    echo "  ./scripts/optimize-for-crc.sh"
 else
     echo -e "${RED}Mixed/Custom Configuration${NC}"
     echo ""
-    echo "To set to CRC:        ./optimize-for-crc.sh"
-    echo "To set to Production: ./restore-production-defaults.sh"
+    echo "To set to CRC:        ./scripts/optimize-for-crc.sh"
+    echo "To set to Production: ./scripts/restore-production-defaults.sh"
 fi
 
 echo -e "${BLUE}========================================${NC}"

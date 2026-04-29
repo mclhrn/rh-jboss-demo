@@ -27,7 +27,7 @@ cd rh-jboss-demo
 Run the setup script to download the official JBoss quickstart:
 
 ```bash
-./setup-source-code.sh
+./scripts/setup-source-code.sh
 ```
 
 **What this does**:
