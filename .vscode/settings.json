@@ -1,0 +1,24 @@
+{
+  "java.configuration.updateBuildConfiguration": "automatic",
+  "java.compile.nullAnalysis.mode": "automatic",
+  "java.saveActions.organizeImports": true,
+  "files.exclude": {
+    "**/.classpath": true,
+    "**/.project": true,
+    "**/.settings": true,
+    "**/.factorypath": true
+  },
+  "files.watcherExclude": {
+    "**/target/**": true,
+    "**/wildfly-*/standalone/data/**": true,
+    "**/wildfly-*/standalone/log/**": true,
+    "**/wildfly-*/standalone/tmp/**": true
+  },
+  "xml.server.workDir": "~/.cache/lemminx",
+  "[xml]": {
+    "editor.defaultFormatter": "redhat.vscode-xml"
+  },
+  "[java]": {
+    "editor.defaultFormatter": "redhat.java"
+  }
+}

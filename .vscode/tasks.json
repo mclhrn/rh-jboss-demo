@@ -1,0 +1,139 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build Kitchensink",
+      "type": "shell",
+      "command": "mvn",
+      "args": ["clean", "package", "-DskipTests"],
+      "options": {
+        "cwd": "${workspaceFolder}/components/kitchensink"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Start WildFly",
+      "type": "shell",
+      "command": "./wildfly-27.0.1.Final/bin/standalone.sh",
+      "args": ["-b", "0.0.0.0"],
+      "options": {
+        "cwd": "${workspaceFolder}/components/kitchensink"
+      },
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": false
+      },
+      "problemMatcher": {
+        "pattern": {
+          "regexp": "^(.*)$",
+          "file": 1,
+          "location": 2,
+          "message": 3
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".*WFLYSRV0049.*starting.*",
+          "endsPattern": ".*WFLYSRV0025.*started.*"
+        }
+      }
+    },
+    {
+      "label": "Start WildFly (Debug Mode)",
+      "type": "shell",
+      "command": "./wildfly-27.0.1.Final/bin/standalone.sh",
+      "args": ["--debug", "-b", "0.0.0.0"],
+      "options": {
+        "cwd": "${workspaceFolder}/components/kitchensink"
+      },
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": false
+      },
+      "problemMatcher": {
+        "pattern": {
+          "regexp": "^(.*)$",
+          "file": 1,
+          "location": 2,
+          "message": 3
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".*WFLYSRV0049.*starting.*",
+          "endsPattern": ".*WFLYSRV0025.*started.*"
+        }
+      }
+    },
+    {
+      "label": "Watch and Auto-Deploy",
+      "type": "shell",
+      "command": "bash",
+      "args": [
+        "-c",
+        "while true; do mvn package -DskipTests -q && cp target/kitchensink.war wildfly-27.0.1.Final/standalone/deployments/ROOT.war && echo '[Hot-Reload] Deployed at '$(date); sleep 5; done"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/components/kitchensink"
+      },
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Deploy to WildFly",
+      "type": "shell",
+      "command": "cp",
+      "args": [
+        "target/kitchensink.war",
+        "wildfly-27.0.1.Final/standalone/deployments/ROOT.war"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/components/kitchensink"
+      },
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Run Tests",
+      "type": "shell",
+      "command": "mvn",
+      "args": ["test"],
+      "options": {
+        "cwd": "${workspaceFolder}/components/kitchensink"
+      },
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Build and Deploy",
+      "dependsOn": ["Build Kitchensink", "Deploy to WildFly"],
+      "dependsOrder": "sequence",
+      "problemMatcher": []
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Debug WildFly (Attach)",
+      "request": "attach",
+      "hostName": "localhost",
+      "port": 8787,
+      "timeout": 30000,
+      "preLaunchTask": "Start WildFly (Debug Mode)"
+    },
+    {
+      "type": "java",
+      "name": "Debug WildFly (Manual Attach)",
+      "request": "attach",
+      "hostName": "localhost",
+      "port": 8787,
+      "timeout": 30000
+    }
+  ]
+}
